@@ -1,6 +1,5 @@
 /**
  * UNIX Shell Implementation
- * CSE321 Project
  */
 
 #include <stdio.h>
@@ -15,11 +14,11 @@
 #define MAX_TOKENS 100
 #define MAX_HISTORY 100
 
-// Global variables
+//variables(global)
 char history[MAX_HISTORY][MAX_COMMAND_LENGTH];
 int history_count = 0;
 
-// Function prototypes
+// Functions
 void display_prompt();
 void read_command(char *command);
 void parse_command(char *command, char *tokens[], int *token_count);
@@ -84,17 +83,15 @@ int main() {
     return 0;
 }
 
-/**
- * Display the shell prompt
- */
+// Display the shell prompt
+
 void display_prompt() {
     printf("sh> ");
     fflush(stdout);
 }
 
-/**
- * Read the command from the user
- */
+// Read the command from the user
+ 
 void read_command(char *command) {
     fgets(command, MAX_COMMAND_LENGTH, stdin);
     
@@ -105,9 +102,9 @@ void read_command(char *command) {
     }
 }
 
-/**
- * Parse the command into tokens
- */
+
+// Parse the command into tokens
+
 void parse_command(char *command, char *tokens[], int *token_count) {
     char *token = strtok(command, " \t");
     *token_count = 0;
@@ -120,9 +117,9 @@ void parse_command(char *command, char *tokens[], int *token_count) {
     tokens[*token_count] = NULL; // Null-terminate the tokens array
 }
 
-/**
- * Execute a single command with potential redirection and piping
- */
+
+// Execute a single command with potential redirection and piping
+
 void execute_command(char *tokens[], int token_count) {
     // Check for pipe
     for (int i = 0; i < token_count; i++) {
@@ -132,8 +129,13 @@ void execute_command(char *tokens[], int token_count) {
         }
     }
     
-    // Handle redirection
-    handle_redirection(tokens, &token_count);
+    // Save a copy of tokens for redirection
+    char *tokens_copy[MAX_TOKENS];
+    int tokens_copy_count = token_count;
+    for (int i = 0; i < token_count; i++) {
+        tokens_copy[i] = tokens[i];
+    }
+    tokens_copy[token_count] = NULL;
     
     // Built-in command: cd
     if (strcmp(tokens[0], "cd") == 0) {
@@ -155,8 +157,12 @@ void execute_command(char *tokens[], int token_count) {
         exit(EXIT_FAILURE);
     } else if (pid == 0) {
         // Child process
-        if (execvp(tokens[0], tokens) < 0) {
-            printf("Command not found: %s\n", tokens[0]);
+        
+        // Handle redirection in child process only
+        handle_redirection(tokens_copy, &tokens_copy_count);
+        
+        if (execvp(tokens_copy[0], tokens_copy) < 0) {
+            printf("Command not found: %s\n", tokens_copy[0]);
             exit(EXIT_FAILURE);
         }
     } else {
@@ -165,9 +171,9 @@ void execute_command(char *tokens[], int token_count) {
     }
 }
 
-/**
- * Handle input/output redirection
- */
+
+// Handle input/output redirection
+
 void handle_redirection(char *tokens[], int *token_count) {
     int in_file = -1, out_file = -1;
     int i, j;
@@ -240,9 +246,9 @@ void handle_redirection(char *tokens[], int *token_count) {
     tokens[*token_count] = NULL; // Ensure null-termination
 }
 
-/**
- * Handle command piping
- */
+
+//Handle command piping
+
 void handle_piping(char *tokens[], int token_count) {
     int i, j, k;
     int pipe_count = 0;
@@ -328,9 +334,9 @@ void handle_piping(char *tokens[], int token_count) {
     }
 }
 
-/**
- * Execute multiple commands separated by semicolons
- */
+
+//  * Execute multiple commands separated by semicolons
+
 void execute_multiple_commands(char *command) {
     char *cmd = strtok(command, ";");
     
@@ -421,9 +427,9 @@ void execute_logical_commands(char *command) {
     }
 }
 
-/**
- * Add a command to the history
- */
+
+//  Add a command to the history
+
 void add_to_history(char *command) {
     if (history_count < MAX_HISTORY) {
         strcpy(history[history_count++], command);
@@ -436,18 +442,17 @@ void add_to_history(char *command) {
     }
 }
 
-/**
- * Display the command history
- */
+
+// Display the command history
+
 void display_history() {
     for (int i = 0; i < history_count; i++) {
         printf("%d: %s\n", i+1, history[i]);
     }
 }
 
-/**
- * Handle signals such as CTRL+C
- */
+// Handle signals such as CTRL+C
+
 void handle_signal(int sig) {
     if (sig == SIGINT) {
         printf("\n");
