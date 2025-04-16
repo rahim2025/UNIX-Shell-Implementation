@@ -335,10 +335,13 @@ void handle_piping(char *tokens[], int token_count) {
 }
 
 
-//  * Execute multiple commands separated by semicolons
+// Execute multiple commands separated by semicolons
 
 void execute_multiple_commands(char *command) {
-    char *cmd = strtok(command, ";");
+    char command_copy[MAX_COMMAND_LENGTH];
+    strcpy(command_copy, command);  // Create a copy to preserve the original command
+    
+    char *cmd = strtok(command_copy, ";");
     
     while (cmd != NULL) {
         // Skip leading whitespace
@@ -350,7 +353,11 @@ void execute_multiple_commands(char *command) {
         char *tokens[MAX_TOKENS];
         int token_count;
         
-        parse_command(cmd, tokens, &token_count);
+        // Create a temporary copy of this command for parsing
+        char cmd_copy[MAX_COMMAND_LENGTH];
+        strcpy(cmd_copy, cmd);
+        
+        parse_command(cmd_copy, tokens, &token_count);
         
         if (token_count > 0) {
             execute_command(tokens, token_count);
