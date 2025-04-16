@@ -341,7 +341,8 @@ void execute_multiple_commands(char *command) {
     char command_copy[MAX_COMMAND_LENGTH];
     strcpy(command_copy, command);  // Create a copy to preserve the original command
     
-    char *cmd = strtok(command_copy, ";");
+    char *saveptr;  // For strtok_r to maintain context between calls
+    char *cmd = strtok_r(command_copy, ";", &saveptr);
     
     while (cmd != NULL) {
         // Skip leading whitespace
@@ -364,7 +365,7 @@ void execute_multiple_commands(char *command) {
         }
         
         // Get the next command
-        cmd = strtok(NULL, ";");
+        cmd = strtok_r(NULL, ";", &saveptr);
     }
 }
 
